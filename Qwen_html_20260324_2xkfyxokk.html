@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Claims Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .currency-symbol {
+            position: absolute;
+            left: 12px;
+            color: #888;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 12px 12px 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+        
+        input.has-currency {
+            padding-left: 30px;
+        }
+        
+        input.no-currency {
+            padding-left: 12px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        
+        input:invalid {
+            border-color: #e74c3c;
+        }
+        
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        .helper-text {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-radius: 10px;
+            border-left: 4px solid #4caf50;
+            animation: fadeIn 0.4s ease-out;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
+            font-size: 0.95rem;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            padding-top: 12px;
+            margin-top: 8px;
+            border-top: 2px solid rgba(0,0,0,0.15);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2e7d32;
+        }
+        
+        .result-label {
+            color: #555;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn-reset {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-reset:active {
+            transform: translateY(0);
+        }
+        
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #e65100;
+            display: none;
+        }
+        
+        .warning.show {
+            display: block;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🎓 Trainer Claims Calculator</h2>
+
+    <div class="form-group">
+        <label for="students">Number of Students</label>
+        <div class="input-wrapper">
+            <input type="number" id="students" class="no-currency" 
+                   min="0" step="1" placeholder="e.g., 25" oninput="calculate()">
+        </div>
+        <div class="helper-text">Total enrolled students in the batch</div>
+    </div>
+
+    <div class="form-group">
+        <label for="feeBilled">Fee Billed per Student</label>
+        <div class="input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input type="number" id="feeBilled" class="has-currency" 
+                   min="0" step="0.01" placeholder="e.g., 500.00" oninput="calculate()">
+        </div>
+        <div class="helper-text">Amount charged to each student</div>
+    </div>
+
+    <div class="form-group">
+        <label for="balance">Cumulative Balance (Unpaid)</label>
+        <div class="input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input type="number" id="balance" class="has-currency" 
+                   min="0" step="0.01" placeholder="e.g., 1200.50" oninput="calculate()">
+        </div>
+        <div class="helper-text">Total outstanding amount from students</div>
+        <div class="warning" id="balanceWarning">
+            ⚠️ Balance cannot exceed total billed amount
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="hours">Trainer Claimed Hours</label>
+        <div class="input-wrapper">
+            <input type="number" id="hours" class="no-currency" 
+                   min="0" step="0.5" placeholder="e.g., 40" oninput="calculate()">
+        </div>
+        <div class="helper-text">Total hours claimed by trainer</div>
+    </div>
+
+    <div class="result" id="output">
+        <!-- Results will be inserted here -->
+    </div>
+    
+    <button class="btn-reset" onclick="resetForm()">🔄 Reset All Fields</button>
+</div>
+
+<script>
+const HOURLY_RATE = 300;
+const CURRENCY = '$';
+
+// Format currency with commas and 2 decimal places
+function formatCurrency(amount) {
+    return `${CURRENCY}${Math.abs(amount).toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+    })}`;
+}
+
+// Format numbers with commas
+function formatNumber(num) {
+    return Math.abs(num).toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+    });
+}
+
+function calculate() {
+    // Get and parse input values
+    const studentsInput = document.getElementById("students");
+    const feeBilledInput = document.getElementById("feeBilled");
+    const balanceInput = document.getElementById("balance");
+    const hoursInput = document.getElementById("hours");
+    
+    let students = parseFloat(studentsInput.value) || 0;
+    let feeBilled = parseFloat(feeBilledInput.value) || 0;
+    let balance = parseFloat(balanceInput.value) || 0;
+    let hours = parseFloat(hoursInput.value) || 0;
+    
+    // Validate inputs
+    students = Math.max(0, Math.floor(students));
+    feeBilled = Math.max(0, feeBilled);
+    balance = Math.max(0, balance);
+    hours = Math.max(0, hours);
+    
+    // Update input displays with validated values
+    studentsInput.value = students || '';
+    feeBilledInput.value = feeBilled || '';
+    balanceInput.value = balance || '';
+    hoursInput.value = hours || '';
+    
+    // Show/hide balance warning
+    const totalFeeBilled = students * feeBilled;
+    const warningEl = document.getElementById("balanceWarning");
+    if (balance > totalFeeBilled && totalFeeBilled > 0) {
+        warningEl.classList.add("show");
+        balance = totalFeeBilled; // Cap balance at total billed
+        balanceInput.value = balance;
+    } else {
+        warningEl.classList.remove("show");
+    }
+    
+    // Core calculations
+    const totalPaidFees = Math.max(0, totalFeeBilled - balance);
+    const factor = totalFeeBilled > 0 ? (totalPaidFees / totalFeeBilled) : 0;
+    const grossSalary = hours * HOURLY_RATE;
+    const salary = factor * grossSalary;
+    
+    // Build result HTML
+    const outputEl = document.getElementById("output");
+    
+    // Only show results if we have meaningful data
+    if (students > 0 || feeBilled > 0 || hours > 0) {
+        outputEl.innerHTML = `
+            <div class="result-item">
+                <span class="result-label">Total Fee Billed:</span>
+                <span class="result-value">${formatCurrency(totalFeeBilled)}</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Paid Fees:</span>
+                <span class="result-value">${formatCurrency(totalPaidFees)}</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Payment Factor:</span>
+                <span class="result-value">${(factor * 100).toFixed(1)}%</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Gross Salary (${hours}h × ${formatCurrency(HOURLY_RATE)}):</span>
+                <span class="result-value">${formatCurrency(grossSalary)}</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">🎯 Final Trainer Pay:</span>
+                <span class="result-value">${formatCurrency(salary)}</span>
+            </div>
+        `;
+        outputEl.classList.add("show");
+    } else {
+        outputEl.classList.remove("show");
+    }
+}
+
+function resetForm() {
+    // Clear all inputs
+    document.getElementById("students").value = '';
+    document.getElementById("feeBilled").value = '';
+    document.getElementById("balance").value = '';
+    document.getElementById("hours").value = '';
+    
+    // Hide results and warnings
+    document.getElementById("output").classList.remove("show");
+    document.getElementById("balanceWarning").classList.remove("show");
+    
+    // Focus first input for quick re-entry
+    document.getElementById("students").focus();
+}
+
+// Initialize: calculate on page load if values exist (for browser autofill)
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scroll behavior for better UX
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.select();
+        });
+    });
+});
+</script>
+
+</body>
+</html>
